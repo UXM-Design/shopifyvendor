@@ -1,34 +1,44 @@
-"use client";
+'use client'
 import React, { useState } from "react";
-import Link from "next/link";
 import * as yup from "yup";
+import { vendorRegister } from "@/actions/auth/auth";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "next/navigation";
-import { vendorLogin } from "@/actions/auth/auth";
+import { redirect } from "next/navigation";
 import TextInput from "@/app/_components/ui/TextInput";
-
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
 interface IVendorRegister {
+  name: string;
   email: string;
+  // mobile: string;
   password: string;
-
+  // confirmpassword: string;
 }
 
 const schema = yup
   .object({
+    name: yup.string().required("Name is Required"),
     email: yup.string().email("Invalid email").required("Email is Required"),
+    // mobile: yup.string().required("Mobile is Required"),
     password: yup
       .string()
       .min(6, "Password must be at least 8 characters")
       .max(20, "Password shouldn't be more than 20 characters")
       .required("Please enter password"),
+    // confirm password
+    /* confirmpassword: yup
+      .string()
+      .required()
+      .oneOf([yup.ref("password")], "Passwords must match"), */
   })
   .required();
 
-const SignIn = (props: Props) => {
+const Register = (props: Props) => {
+
 
   const {
     register,
@@ -41,18 +51,18 @@ const SignIn = (props: Props) => {
 
   const router = useRouter();
 
-  console.log(errors)
 
   const onSubmit = async (data: IVendorRegister) => {
 
-    const response = await vendorLogin(data.email, data.password);
+    console.log('Cming')
+    const response = await vendorRegister(data.name, data.email, data.password);
 
-    console.log(response)
     if (response.status === 200) {
       router.push("/dashboard");
     }
 
   };
+
 
   return (
     <>
@@ -60,13 +70,23 @@ const SignIn = (props: Props) => {
         <div className="md:w-[400px] w-[320px] shadow-xl bg-white rounded-xl flex flex-col justify-center items-center py-4 px-6">
           <div className="content flex flex-col gap-2">
             <span></span>
-            <h1 className="text-xl font-medium">Welcome admin</h1>
+            <h1 className="text-xl font-medium">Welcome</h1>
             <p className="text-[#656565]">
-              Please enter your login crediential to access the dashboard
+              You can create account by following Details
             </p>
           </div>
           <br />
-          <form action="/dashboard" method="post" onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <TextInput
+              type="text"
+              name="name"
+              label="Name"
+              id="name"
+              placeholder="Enter Name"
+              register={register}
+              error={errors.name}
+            />
+
             <TextInput
               type="email"
               name="email"
@@ -93,7 +113,7 @@ const SignIn = (props: Props) => {
               type="submit"
             //   onSubmit={handelSubmit}
             >
-              Login
+              Register
             </button>
           </form>
           <br />
@@ -112,4 +132,4 @@ const SignIn = (props: Props) => {
   );
 };
 
-export default SignIn;
+export default Register;
